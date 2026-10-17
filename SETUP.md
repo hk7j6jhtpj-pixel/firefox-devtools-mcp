@@ -52,7 +52,7 @@ User scope, in `~/.claude.json`:
 
 ## OpenWork
 
-Workspace "Developer", in `C:/Users/Will/Developer/OpenWork/opencode.jsonc`:
+Global OpenCode config, in `~/.config/opencode/opencode.jsonc`, so every OpenWork workspace gets it. A workspace-folder `opencode.jsonc` is not reliable: OpenWork's engine kept loading the old `Documents/OpenWork` folder after the workspace moved.
 
 ```jsonc
 "mcp": {
@@ -67,6 +67,12 @@ Workspace "Developer", in `C:/Users/Will/Developer/OpenWork/opencode.jsonc`:
     "enabled": true
   }
 }
+```
+
+Check that OpenWork's engine sees it:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\@openworkdesktop\resources\sidecars\opencode-x86_64-pc-windows-msvc.exe" mcp list
 ```
 
 ## Smoke test without an app
