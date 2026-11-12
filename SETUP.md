@@ -1,6 +1,6 @@
 # Local setup (Will's machine)
 
-How this fork is installed and wired into Claude Code and OpenWork.
+How this fork is installed and wired into Claude Code, OpenWork, OpenCode Desktop and Unsloth Studio.
 
 ## Build
 
@@ -20,16 +20,17 @@ npm ci
 npm run build
 ```
 
-Restart Claude Code sessions and OpenWork afterwards so they pick up the new build.
+Restart Claude Code sessions, OpenWork, OpenCode Desktop and Unsloth Studio afterwards so they pick up the new build.
 
 ## Firefox profiles
 
 Each app gets its own throwaway profile, never the everyday one:
 
 - Claude Code: `~/.firefox-devtools-mcp/claude-code`
-- OpenWork: `~/.firefox-devtools-mcp/openwork`
+- OpenWork and OpenCode Desktop: `~/.firefox-devtools-mcp/openwork` (they share one config, so one profile)
+- Unsloth Studio: `~/.firefox-devtools-mcp/unsloth`
 
-Two apps can't share one profile at the same time, because Firefox locks it.
+Two apps can't share one profile at the same time, because Firefox locks it. So OpenWork and OpenCode Desktop can't drive Firefox at the same time.
 
 ## Claude Code
 
@@ -50,9 +51,9 @@ User scope, in `~/.claude.json`:
 }
 ```
 
-## OpenWork
+## OpenWork and OpenCode Desktop
 
-Global OpenCode config, in `~/.config/opencode/opencode.jsonc`, so every OpenWork workspace gets it. A workspace-folder `opencode.jsonc` is not reliable: OpenWork's engine kept loading the old `Documents/OpenWork` folder after the workspace moved.
+Global OpenCode config, in `~/.config/opencode/opencode.jsonc`, so every OpenWork workspace and OpenCode Desktop get it. A workspace-folder `opencode.jsonc` is not reliable: OpenWork's engine kept loading the old `Documents/OpenWork` folder after the workspace moved.
 
 ```jsonc
 "mcp": {
@@ -74,6 +75,39 @@ Check that OpenWork's engine sees it:
 ```powershell
 & "$env:LOCALAPPDATA\Programs\@openworkdesktop\resources\sidecars\opencode-x86_64-pc-windows-msvc.exe" mcp list
 ```
+
+Same check for OpenCode Desktop (replace the version folder with the one that exists):
+
+```powershell
+& "$env:APPDATA\ai.opencode.desktop\cli\2.2.5-x64\opencode-cli.exe" mcp list
+```
+
+Both should print `firefox-devtools  connected`.
+
+## Unsloth Studio
+
+Unsloth Studio keeps MCP servers in its own database (`~/.unsloth/studio/studio.db`), not in a config file. Add the server in the app: open a chat, open the MCP servers dialog, choose the import option and paste:
+
+```json
+{
+  "mcpServers": {
+    "firefox-devtools": {
+      "command": "node",
+      "args": [
+        "C:/Users/Will/Developer/projects/firefox-devtools-mcp/dist/index.js",
+        "--profile-path", "C:/Users/Will/.firefox-devtools-mcp/unsloth",
+        "--viewport", "1280x720"
+      ]
+    }
+  }
+}
+```
+
+Then enable it in the chat's MCP menu. It needs a model that supports tool calling.
+
+- Local-command servers are allowed automatically while Studio listens on 127.0.0.1 only.
+- They are switched off by Remote Access, or when tools are disabled. The dialog says "Local commands are disabled" in that case.
+- If Studio can't find `node`, set `"command"` to `C:/Program Files/nodejs/node.exe`.
 
 ## Smoke test without an app
 
